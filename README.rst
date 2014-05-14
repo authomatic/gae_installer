@@ -4,7 +4,7 @@ Googe App Engine Installer 1.9.4
 
 This package installs the
 `Google App Engine SDK 1.9.4 <https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python>`_
-to the ``site-packages`` directory of the current Python interpreter
+to the ``site-packages`` directory of the **current Python interpreter**
 so that you can use ``from google import appengine`` outside the
 ``dev_appserver.py`` runtime. This is useful if you want to use the
 `google.appengine.ext.testbed <https://developers.google.com/appengine/docs/python/tools/localunittesting>`_
@@ -99,8 +99,8 @@ Running ``python setup.py install`` downloads and extracts the
 `Google App Engine SDK <https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python>`_
 for *Linux/Other Platforms* version **1.9.4** from
 https://storage.googleapis.com/appengine-sdks/featured/google_appengine_1.9.4.zip
-and extracts it into ``site-packages/google_appengine`` of the current Python
-interpreter and creates the ``site-packages/google_appengine.pth`` file with
+and extracts it into ``site-packages/google_appengine`` of the **current Python
+interpreter** and creates the ``site-packages/google_appengine.pth`` file with
 relative path to the ``google_appengine`` directory. It also creates Bash
 executables in the *scripts directory* of the current Python interpreter
 which wrap the GAE Python executables in the ``site-packages/google_appengine``
