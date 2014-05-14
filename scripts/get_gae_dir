@@ -1,0 +1,1 @@
+python -c "import google; print google.__file__.split('/google/')[0]"

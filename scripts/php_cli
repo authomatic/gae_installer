@@ -1,0 +1,1 @@
+python `get_gae_dir`/`basename $0`.py "$@"
