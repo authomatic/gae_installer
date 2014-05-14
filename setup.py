@@ -86,6 +86,7 @@ setup(
         'Topic :: System :: Installation/Setup',
     ],
     license = 'MIT',
+    package_data={'': ['*.txt', '*.rst']},
     packages=[''], # If not empty, contents of ./build/lib will not be copied
     scripts=[os.path.join(SCRIPTS_PATH, i) for i in SCRIPTS],
     cmdclass=dict(build=build)
