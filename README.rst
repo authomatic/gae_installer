@@ -7,15 +7,15 @@ This package installs the
 to the ``site-packages`` directory of the current Python interpreter
 so that you can use ``from google import appengine`` outside the
 ``dev_appserver.py`` runtime. This is useful if you want to use the
-`testbed <https://developers.google.com/appengine/docs/python/tools/localunittesting>`_
-in your tests.
+`google.appengine.ext.testbed <https://developers.google.com/appengine/docs/python/tools/localunittesting>`_
+package in your tests.
 
 It also makes all of the GAE commands like ``dev_appserver.py``,
-``bulkloader.py`` etc. globaly available without the ``.py`` extension.
+``bulkloader.py``, etc. globaly available without the ``.py`` extension.
 
 The installer works wit `Virtualenv <https://virtualenv.pypa.io/>`_.
 
-The version of this package mirrors the
+The **version** of this package mirrors the
 `GAE SDK <https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python>`_
 version (currently 1.9.4) and if there will be a new release of the SDK,
 there will be a corresponding release of this package too.
@@ -97,11 +97,11 @@ How It Works
 
 Running ``python setup.py install`` downloads and extracts the
 `Google App Engine SDK <https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python>`_
-for Linux/Other Platforms version 1.9.4 from
+for *Linux/Other Platforms* version **1.9.4** from
 https://storage.googleapis.com/appengine-sdks/featured/google_appengine_1.9.4.zip
 and extracts it into ``site-packages/google_appengine`` of the current Python
 interpreter and creates the ``site-packages/google_appengine.pth`` file with
 relative path to the ``google_appengine`` directory. It also creates Bash
 executables in the *scripts directory* of the current Python interpreter
-which wrapp the GAE Python executables in the ``site-packages/google_appengine``
+which wrap the GAE Python executables in the ``site-packages/google_appengine``
 directory.
