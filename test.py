@@ -51,7 +51,7 @@ class Test(unittest.TestCase):
     def setUpClass(cls):
         _remove_venv()
         if _which('virtualenv'):
-            os.system('virtualenv {0}'.format(VENV_PATH))
+            os.system('virtualenv -p {0} {1}'.format(sys.executable, VENV_PATH))
             if not os.path.isdir(VENV_PATH):
                 sys.exit('Failed to create virtual environment "{0}"!'
                          .format(VENV_PATH))
@@ -86,4 +86,7 @@ class Test(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    if sys.version_info.major == 2 and sys.version_info.minor >= 7:
+        unittest.main()
+    else:
+        sys.exit('GAE Installer requires Python 2.7 or higher!')
