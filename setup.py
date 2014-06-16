@@ -5,13 +5,16 @@ import hashlib
 import urllib
 import zipfile
 
-
 VESRION = '1.9.4'
-GAE_URL = ('https://storage.googleapis.com/appengine-sdks/featured/'
-           'google_appengine_{0}.zip').format(VESRION)
+
+GAE_URL = 'https://storage.googleapis.com/appengine-sdks/{0}/google_appengine_{1}.zip'
+GAE_URL_FEATURED = GAE_URL.format('featured', VESRION)
+GAE_URL_DEPRECATED = GAE_URL.format('deprecated/{0}'.format(VESRION.replace('.', '')), VESRION)
+
 GAE_CHECKSUM = 'ee44f7bcc16b4d72c3af0a4f744048d44f75c5ce'
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 BUILD_PATH = 'build'
+ZIP_PATH = os.path.join(BUILD_PATH, 'gae.zip')
 LIB_PATH = os.path.join(BUILD_PATH, 'lib')
 SCRIPTS_PATH = os.path.join(BASE_PATH, 'scripts')
 README_PATH = os.path.join(BASE_PATH, 'README.rst')
@@ -34,34 +37,50 @@ SCRIPTS = [
 
 
 def _download_gae(zip_path):
-    print('Downloading {0}'.format(GAE_URL))
-    return urllib.urlretrieve(GAE_URL, zip_path)[0]
+    print('Downloading GAE SDK {0} from {1}'.format(VESRION, GAE_URL_FEATURED))
+    print('Please be patient, this can take a while...')
+    file_path, response = urllib.urlretrieve(GAE_URL_FEATURED, zip_path)
+    if response.type != 'application/zip':
+        print('GAE SDK {0} is deprecated!'.format(VESRION))
+        print('Downloading deprecated GAE SDK {0} from {1}'
+              .format(VESRION, GAE_URL_DEPRECATED))
+        file_path, response = urllib.urlretrieve(GAE_URL_DEPRECATED, zip_path)
+
+    print('Download OK')
+    return file_path
+
+
+def checksum(zip_path):
+    cs = hashlib.sha1(open(zip_path, 'rb').read()).hexdigest()
+    if cs == GAE_CHECKSUM:
+        print('Checksum OK')
+        return True
+
 
 class build(_build):
     def run(self):
         os.makedirs(LIB_PATH)
-        self._download_gae()
+        self._download()
         with open(os.path.join(LIB_PATH, 'google_appengine.pth'), 'w') as f:
             f.write('google_appengine')
         _build.run(self)
 
-    def _download_gae(self):
-        zip_path = os.path.join(BUILD_PATH, 'gae.zip')
-
-        if os.path.isfile(zip_path):
-            print('GAE SDK zip found at {0}'.format(zip_path))
-            checksum = hashlib.sha1(open(zip_path, 'rb').read()).hexdigest()
-            if checksum == GAE_CHECKSUM:
-                print('GAE zip checksum OK')
-            else:
+    def _download(self):
+        if os.path.isfile(ZIP_PATH):
+            print('GAE SDK zip found at {0}'.format(ZIP_PATH))
+            if not checksum(ZIP_PATH):
                 print('GAE zip checksum {0} doesnt match with {1}!'
                       .format(checksum, GAE_CHECKSUM))
-                _download_gae(zip_path)
+                _download_gae(ZIP_PATH)
         else:
-            _download_gae(zip_path)
+            _download_gae(ZIP_PATH)
+            if not checksum(ZIP_PATH):
+                raise Exception("The downloaded GAE SDK {0} doesn't match the "
+                                "SHA1 checksum '{1}'"
+                                .format(VESRION, GAE_CHECKSUM))
 
-        zf = zipfile.ZipFile(zip_path)
-        print('Extracting {0} to {1}'.format(zip_path, LIB_PATH))
+        zf = zipfile.ZipFile(ZIP_PATH)
+        print('Extracting {0} to {1}'.format(ZIP_PATH, LIB_PATH))
         zf.extractall(LIB_PATH)
 
 setup(
