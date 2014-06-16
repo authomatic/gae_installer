@@ -5,13 +5,13 @@ import hashlib
 import urllib
 import zipfile
 
-VESRION = '1.9.4'
+VESRION = '1.9.5'
 
 GAE_URL = 'https://storage.googleapis.com/appengine-sdks/{0}/google_appengine_{1}.zip'
 GAE_URL_FEATURED = GAE_URL.format('featured', VESRION)
 GAE_URL_DEPRECATED = GAE_URL.format('deprecated/{0}'.format(VESRION.replace('.', '')), VESRION)
 
-GAE_CHECKSUM = 'ee44f7bcc16b4d72c3af0a4f744048d44f75c5ce'
+GAE_CHECKSUM = '070ba616fbeecff4bf6c5f43c00a43c21fbb108e'
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 BUILD_PATH = 'build'
 ZIP_PATH = os.path.join(BUILD_PATH, 'gae.zip')
