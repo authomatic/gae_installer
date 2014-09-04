@@ -95,13 +95,18 @@ And the GAE executables should be in the ``./e/bin/`` directory.
 How It Works
 ------------
 
-Running ``python setup.py install`` downloads and extracts the
+Runnig the ``python setup.py install`` tries to download the
 `Google App Engine SDK <https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python>`_
-for *Linux/Other Platforms* version **1.9.4** from
-https://storage.googleapis.com/appengine-sdks/featured/google_appengine_1.9.4.zip
-and extracts it into ``site-packages/google_appengine`` of the **current Python
-interpreter** and creates the ``site-packages/google_appengine.pth`` file with
-relative path to the ``google_appengine`` directory. It also creates Bash
+for *Linux/Other Platforms* from the
+https://storage.googleapis.com/appengine-sdks/featured/google_appengine_X.X.X.zip
+URL. If the response mime-type is not ``application/zip``, the requested version
+is deprecated and the installer will download the GAE SDK from
+https://storage.googleapis.com/appengine-sdks/deprecated/XXX/google_appengine_X.X.X.zip
+where XXX is the **GAE SDK** version matching the **GAE Installer** version.
+The downloaded ZIP archive will then be checked against a SHA1 checksum and
+extracted into the ``site-packages/google_appengine`` directory of the
+**current Python interpreter** and made available to the PYTHONPATH with the
+``site-packages/google_appengine.pth`` file. **GAE Installer** also creates Bash
 executables in the *scripts directory* of the current Python interpreter
 which wrap the GAE Python executables in the ``site-packages/google_appengine``
 directory.
