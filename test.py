@@ -13,6 +13,7 @@ ACTIVATE_THIS_PATH = os.path.join(VENV_PATH, 'bin', 'activate_this.py')
 
 
 def _which(program):
+    """Returns path of command executable path."""
     import os
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
@@ -29,48 +30,60 @@ def _which(program):
                 return exe_file
 
 
-def _remove_venv():
-    """Removes virtual environment"""
-    if os.path.isdir(VENV_PATH):
-        shutil.rmtree(VENV_PATH)
-
-
-def _remove_build():
-    """Removes virtual environment"""
-    if os.path.isdir(BUILD_PATH):
-        shutil.rmtree(BUILD_PATH)
-
-
-def _activate_venv():
-    """Activates virtual environment"""
-    execfile(ACTIVATE_THIS_PATH, dict(__file__=ACTIVATE_THIS_PATH))
-
-
 class Test(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
-        _remove_venv()
+        cls.tearDownClass()
         if _which('virtualenv'):
-            os.system('virtualenv {0}'.format(VENV_PATH))
+            os.system('virtualenv {0} -p python2.7'.format(VENV_PATH))
             if not os.path.isdir(VENV_PATH):
                 sys.exit('Failed to create virtual environment "{0}"!'
                          .format(VENV_PATH))
-            _activate_venv()
+            cls._activate_venv()
         else:
-            sys.exit('Cannot run tests because the "virtualenv" command is not '
-                     'installed on your system!\nRead installation instructions '
+            sys.exit('Cannot run tests because the "virtualenv" '
+                     'command is not installed on your system!'
+                     '\nRead installation instructions '
                      'here:\nhttps://virtualenv.pypa.io/en/latest/virtualenv'
                      '.html#installation')
 
     @classmethod
     def tearDownClass(cls):
-        _remove_venv()
-        _remove_build()
+        pass
+        cls._remove_venv()
+        cls._remove_build()
+
+    @classmethod
+    def _remove_venv(cls):
+        """Removes virtual environment"""
+        if os.path.isdir(VENV_PATH):
+            shutil.rmtree(VENV_PATH)
+
+    @classmethod
+    def _remove_build(cls):
+        """Removes virtual environment"""
+        if os.path.isdir(BUILD_PATH):
+            shutil.rmtree(BUILD_PATH)
+
+    @classmethod
+    def _activate_venv(cls):
+        """
+        Activates virtual environment
+
+        http://virtualenv.readthedocs.org/en/latest/virtualenv.html#using-virtualenv-without-bin-python
+        """
+        execfile(ACTIVATE_THIS_PATH, dict(__file__=ACTIVATE_THIS_PATH))
 
     def _import_gae(self):
-        from google import appengine
+        import google.appengine
 
     def test_import(self):
+        # On Ubuntu, there is a google module in system site-packages
+        # which shadows the google module from google_appengine.
+        # Therefore we will keep only the virtualenv paths in the pythonpath.
+        sys.path = sys.path[:3]
+
         # GAE import should fail first
         self.assertRaises(ImportError, self._import_gae)
 
@@ -78,8 +91,9 @@ class Test(unittest.TestCase):
         os.system('python {0} install'
                   .format(os.path.join(BASE_PATH, 'setup.py')))
 
+
         # and activating the virtual environment
-        _activate_venv()
+        self._activate_venv()
 
         # GAE should not fail
         self._import_gae()
