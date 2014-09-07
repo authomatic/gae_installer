@@ -50,9 +50,10 @@ def checksum(zip_path):
 
 class build(_build):
     def run(self):
-        os.makedirs(self.build_platlib)
+        # os.makedirs(self.build_platlib)
+        os.makedirs(LIB_PATH)
         self._download()
-        pth_path = os.path.join(self.build_platlib, 'google_appengine.pth')
+        pth_path = os.path.join(LIB_PATH, 'google_appengine.pth')
         with open(pth_path, 'w') as f:
             f.write('google_appengine')
         _build.run(self)
@@ -72,8 +73,8 @@ class build(_build):
                                 .format(VESRION, GAE_CHECKSUM))
 
         zf = zipfile.ZipFile(ZIP_PATH)
-        print('Extracting {0} to {1}'.format(ZIP_PATH, self.build_platlib))
-        zf.extractall(self.build_platlib)
+        print('Extracting {0} to {1}'.format(ZIP_PATH, LIB_PATH))
+        zf.extractall(LIB_PATH)
 
     def _download_gae(self, zip_path):
         print('Downloading GAE SDK {0} from {1}'
@@ -117,4 +118,7 @@ setup(
     packages=['gae_installer'],
     scripts=[os.path.join(SCRIPTS_PATH, i) for i in SCRIPTS],
     cmdclass=dict(build=build)
+
+    ,data_files=[os.path.join(LIB_PATH ,'google_appengine'),
+                 os.path.join(LIB_PATH ,'google_appengine.pth')]
 )

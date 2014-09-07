@@ -51,8 +51,8 @@ class Test(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         pass
-        cls._remove_venv()
-        cls._remove_build()
+        # cls._remove_venv()
+        # cls._remove_build()
 
     @classmethod
     def _remove_venv(cls):
