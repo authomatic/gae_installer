@@ -2,6 +2,7 @@ import os
 from distutils.command.build import build as _build
 from distutils.core import setup
 from distutils.util import get_platform
+import glob
 import hashlib
 import urllib
 import zipfile
@@ -119,6 +120,5 @@ setup(
     scripts=[os.path.join(SCRIPTS_PATH, i) for i in SCRIPTS],
     cmdclass=dict(build=build)
 
-    ,data_files=[os.path.join(LIB_PATH ,'google_appengine/*'),
-                 os.path.join(LIB_PATH ,'google_appengine.pth')]
+    ,data_files=glob.glob(BUILD_PATH + '/*')
 )
