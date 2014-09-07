@@ -119,6 +119,6 @@ setup(
     scripts=[os.path.join(SCRIPTS_PATH, i) for i in SCRIPTS],
     cmdclass=dict(build=build)
 
-    ,data_files=[os.path.join(LIB_PATH ,'google_appengine'),
+    ,data_files=[os.path.join(LIB_PATH ,'google_appengine/*'),
                  os.path.join(LIB_PATH ,'google_appengine.pth')]
 )
