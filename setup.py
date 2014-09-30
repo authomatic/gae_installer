@@ -1,9 +1,8 @@
 import os
 from distutils.command.build import build as _build
 from distutils.core import setup
-from distutils.util import get_platform
-import glob
 import hashlib
+import platform
 import urllib
 import zipfile
 
@@ -51,10 +50,18 @@ def checksum(zip_path):
 
 class build(_build):
     def run(self):
+
+        # TODO: Either choose one of these paths or unzip the SDK to both
+        # lib_path = LIB_PATH
+        self.lib_path = self.build_platlib
+
+        if platform.system().lower() == 'darwin':
+            self.lib_path = LIB_PATH
+
         # os.makedirs(self.build_platlib)
-        os.makedirs(LIB_PATH)
+        os.makedirs(self.lib_path)
         self._download()
-        pth_path = os.path.join(LIB_PATH, 'google_appengine.pth')
+        pth_path = os.path.join(self.lib_path, 'google_appengine.pth')
         with open(pth_path, 'w') as f:
             f.write('google_appengine')
         _build.run(self)
@@ -74,8 +81,8 @@ class build(_build):
                                 .format(VESRION, GAE_CHECKSUM))
 
         zf = zipfile.ZipFile(ZIP_PATH)
-        print('Extracting {0} to {1}'.format(ZIP_PATH, LIB_PATH))
-        zf.extractall(LIB_PATH)
+        print('Extracting {0} to {1}'.format(ZIP_PATH, self.lib_path))
+        zf.extractall(self.lib_path)
 
     def _download_gae(self, zip_path):
         print('Downloading GAE SDK {0} from {1}'
@@ -119,6 +126,4 @@ setup(
     packages=['gae_installer'],
     scripts=[os.path.join(SCRIPTS_PATH, i) for i in SCRIPTS],
     cmdclass=dict(build=build)
-
-    ,data_files=glob.glob(BUILD_PATH + '/*')
 )
