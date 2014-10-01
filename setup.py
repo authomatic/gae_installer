@@ -2,7 +2,6 @@ import os
 from distutils.command.build import build as _build
 from distutils.core import setup
 import hashlib
-import platform
 import urllib
 import zipfile
 
@@ -50,19 +49,25 @@ def checksum(zip_path):
 
 class build(_build):
     def run(self):
+        # download
+        self._get_from_cache_or_download()
+
+        # unzip and create pth for other platforms
         self._populate_files(self.build_platlib)
+
+        # unzip and create pth for OSX
         self._populate_files(LIB_PATH)
 
         _build.run(self)
 
     def _populate_files(self, build_path):
         os.makedirs(build_path)
-        self._download(build_path)
+        self._unzip(build_path)
         pth_path = os.path.join(build_path, 'google_appengine.pth')
         with open(pth_path, 'w') as f:
             f.write('google_appengine')
 
-    def _download(self, build_path):
+    def _get_from_cache_or_download(self):
         if os.path.isfile(ZIP_PATH):
             print('GAE SDK zip found at {0}'.format(ZIP_PATH))
             if not checksum(ZIP_PATH):
@@ -76,13 +81,15 @@ class build(_build):
                                 "SHA1 checksum '{1}'"
                                 .format(VESRION, GAE_CHECKSUM))
 
+    def _unzip(self, build_path):
         zf = zipfile.ZipFile(ZIP_PATH)
         print('Extracting {0} to {1}'.format(ZIP_PATH, build_path))
         zf.extractall(build_path)
 
     def _download_gae(self, zip_path):
-        print('Downloading GAE SDK {0} from {1}'
-              .format(VESRION, GAE_URL_FEATURED))
+        os.makedirs(BUILD_PATH)
+        print('Downloading GAE SDK {0} from {1} to {2}'
+              .format(VESRION, GAE_URL_FEATURED, zip_path))
         print('Please be patient, this can take a while...')
         file_path, response = urllib.urlretrieve(GAE_URL_FEATURED, zip_path)
         if response.type != 'application/zip':
