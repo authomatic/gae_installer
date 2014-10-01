@@ -50,23 +50,19 @@ def checksum(zip_path):
 
 class build(_build):
     def run(self):
+        self._populate_files(self.build_platlib)
+        self._populate_files(LIB_PATH)
 
-        # TODO: Either choose one of these paths or unzip the SDK to both
-        # lib_path = LIB_PATH
-        self.lib_path = self.build_platlib
-
-        if platform.system().lower() == 'darwin':
-            self.lib_path = LIB_PATH
-
-        # os.makedirs(self.build_platlib)
-        os.makedirs(self.lib_path)
-        self._download()
-        pth_path = os.path.join(self.lib_path, 'google_appengine.pth')
-        with open(pth_path, 'w') as f:
-            f.write('google_appengine')
         _build.run(self)
 
-    def _download(self):
+    def _populate_files(self, build_path):
+        os.makedirs(build_path)
+        self._download(build_path)
+        pth_path = os.path.join(build_path, 'google_appengine.pth')
+        with open(pth_path, 'w') as f:
+            f.write('google_appengine')
+
+    def _download(self, build_path):
         if os.path.isfile(ZIP_PATH):
             print('GAE SDK zip found at {0}'.format(ZIP_PATH))
             if not checksum(ZIP_PATH):
@@ -81,8 +77,8 @@ class build(_build):
                                 .format(VESRION, GAE_CHECKSUM))
 
         zf = zipfile.ZipFile(ZIP_PATH)
-        print('Extracting {0} to {1}'.format(ZIP_PATH, self.lib_path))
-        zf.extractall(self.lib_path)
+        print('Extracting {0} to {1}'.format(ZIP_PATH, build_path))
+        zf.extractall(build_path)
 
     def _download_gae(self, zip_path):
         print('Downloading GAE SDK {0} from {1}'
