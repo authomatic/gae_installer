@@ -6,7 +6,9 @@ import platform
 import urllib
 import zipfile
 
+
 VESRION = '1.9.6'
+GAE_CHECKSUM = '888a6687d868ac37f973ea2fb986931338a1c040'
 
 GAE_URL = ('https://storage.googleapis.com/appengine-sdks/{0}/'
            'google_appengine_{1}.zip')
@@ -14,13 +16,10 @@ GAE_URL_FEATURED = GAE_URL.format('featured', VESRION)
 GAE_URL_DEPRECATED = GAE_URL.format('deprecated/{0}'
                                     .format(VESRION.replace('.', '')), VESRION)
 
-GAE_CHECKSUM = '888a6687d868ac37f973ea2fb986931338a1c040'
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 BUILD_PATH = 'build'
 ZIP_PATH = os.path.join(BUILD_PATH, 'gae.zip')
 LIB_PATH = os.path.join(BUILD_PATH, 'lib')
-
-
 SCRIPTS_PATH = os.path.join(BASE_PATH, 'scripts')
 README_PATH = os.path.join(BASE_PATH, 'README.rst')
 SCRIPTS = [
@@ -42,6 +41,7 @@ SCRIPTS = [
 
 
 def checksum(zip_path):
+    """Checks the downloaded GAE SDK against its checksum."""
     cs = hashlib.sha1(open(zip_path, 'rb').read()).hexdigest()
     if cs == GAE_CHECKSUM:
         print('Checksum OK')
@@ -50,23 +50,31 @@ def checksum(zip_path):
 
 class build(_build):
     def run(self):
-
-        # TODO: Either choose one of these paths or unzip the SDK to both
-        # lib_path = LIB_PATH
-        self.lib_path = self.build_platlib
-
-        if platform.system().lower() == 'darwin':
-            self.lib_path = LIB_PATH
-
-        # os.makedirs(self.build_platlib)
-        os.makedirs(self.lib_path)
-        self._download()
-        pth_path = os.path.join(self.lib_path, 'google_appengine.pth')
+        # On Mac OSX we need to collect all the files to be installed in the
+        # ./build/lib directory, because it ignores the files in
+        # ./build/lib.<plat>/. On other platforms ./build/lib is ignored.
+        # http://goo.gl/MYCNnJ
+        is_mac = platform.system().lower() == 'darwin'
+        build_dir = LIB_PATH if is_mac else self.build_platlib
+        
+        # Create build directory
+        os.makedirs(build_dir)
+        
+        # Download and unzip GAE SDK
+        self._get_gae_sdk(build_dir)
+        
+        # Create PTH file
+        pth_path = os.path.join(build_dir, 'google_appengine.pth')
         with open(pth_path, 'w') as f:
             f.write('google_appengine')
+        
         _build.run(self)
 
-    def _download(self):
+    def _get_gae_sdk(self, build_dir):
+        """
+        Downloads and unzips the GAE SDK.
+        If a previously downloaded file is found skips the download.
+        """
         if os.path.isfile(ZIP_PATH):
             print('GAE SDK zip found at {0}'.format(ZIP_PATH))
             if not checksum(ZIP_PATH):
@@ -80,15 +88,20 @@ class build(_build):
                                 "SHA1 checksum '{1}'"
                                 .format(VESRION, GAE_CHECKSUM))
 
+        # Unzip
         zf = zipfile.ZipFile(ZIP_PATH)
-        print('Extracting {0} to {1}'.format(ZIP_PATH, self.lib_path))
-        zf.extractall(self.lib_path)
+        print('Extracting {0} to {1}'.format(ZIP_PATH, build_dir))
+        zf.extractall(build_dir)
 
     def _download_gae(self, zip_path):
+        """Downloads GAE SDK."""
         print('Downloading GAE SDK {0} from {1}'
               .format(VESRION, GAE_URL_FEATURED))
         print('Please be patient, this can take a while...')
         file_path, response = urllib.urlretrieve(GAE_URL_FEATURED, zip_path)
+
+        # If the response is not a zip file the requested version is deprecated
+        # and we need to download it from the archive.
         if response.type != 'application/zip':
             print('GAE SDK {0} is deprecated!'.format(VESRION))
             print('Downloading deprecated GAE SDK {0} from {1}'
