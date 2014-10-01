@@ -50,7 +50,6 @@ class Test(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        pass
         cls._remove_venv()
         cls._remove_build()
 
