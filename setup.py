@@ -18,7 +18,7 @@ GAE_CHECKSUM = '888a6687d868ac37f973ea2fb986931338a1c040'
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 BUILD_PATH = 'build'
 ZIP_PATH = os.path.join(BUILD_PATH, 'gae.zip')
-LIB_PATH = os.path.join(BUILD_PATH, 'lib')
+BUILD_LIB_PATH = os.path.join(BUILD_PATH, 'lib')
 SCRIPTS_PATH = os.path.join(BUILD_PATH, 'scripts')
 README_PATH = os.path.join(BASE_PATH, 'README.rst')
 SCRIPT_TEMPLATE = 'python `get_gae_dir`/`basename $0`.py "$@"'
@@ -37,7 +37,7 @@ class Build(build):
     def initialize_options(self):
         """Set the build path explicitly to be same on all platforms."""
         build.initialize_options(self)
-        self.build_lib = LIB_PATH
+        self.build_lib = BUILD_LIB_PATH
 
     def run(self):
         self._get_from_cache_or_download()
@@ -52,7 +52,7 @@ class Build(build):
         and populates the global script_paths variable with their paths.
         """
         global script_paths
-        files = os.listdir(os.path.join(LIB_PATH, 'google_appengine'))
+        files = os.listdir(os.path.join(BUILD_LIB_PATH, 'google_appengine'))
 
         os.makedirs(SCRIPTS_PATH)
         script_paths = []
@@ -67,9 +67,9 @@ class Build(build):
 
     def _populate_files(self):
         """Unzips the downloaded GAE SDK and creates a PTH file"""
-        os.makedirs(LIB_PATH)
-        self._unzip(LIB_PATH)
-        pth_path = os.path.join(LIB_PATH, 'google_appengine.pth')
+        os.makedirs(BUILD_LIB_PATH)
+        self._unzip(BUILD_LIB_PATH)
+        pth_path = os.path.join(BUILD_LIB_PATH, 'google_appengine.pth')
         with open(pth_path, 'w') as f:
             f.write('google_appengine')
 
