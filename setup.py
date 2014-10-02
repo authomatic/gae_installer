@@ -34,16 +34,14 @@ class BuildScripts(build_scripts):
 
 class Build(build):
     """Custom build command"""
+    def initialize_options(self):
+        """Set the build path explicitly to be same on all platforms."""
+        build.initialize_options(self)
+        self.build_lib = LIB_PATH
+
     def run(self):
-        # download
         self._get_from_cache_or_download()
-
-        # unzip and create pth for OSX
-        self._populate_files(LIB_PATH)
-
-        # unzip and create pth for other platforms
-        self._populate_files(self.build_platlib)
-
+        self._populate_files()
         self._populate_scripts()
 
         build.run(self)
@@ -67,11 +65,11 @@ class Build(build):
                     print 'Generating script file: {0}'.format(script_path)
                     f.write(SCRIPT_TEMPLATE)
 
-    def _populate_files(self, build_path):
+    def _populate_files(self):
         """Unzips the downloaded GAE SDK and creates a PTH file"""
-        os.makedirs(build_path)
-        self._unzip(build_path)
-        pth_path = os.path.join(build_path, 'google_appengine.pth')
+        os.makedirs(LIB_PATH)
+        self._unzip(LIB_PATH)
+        pth_path = os.path.join(LIB_PATH, 'google_appengine.pth')
         with open(pth_path, 'w') as f:
             f.write('google_appengine')
 
