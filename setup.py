@@ -7,7 +7,7 @@ import tempfile
 import urllib
 import zipfile
 
-VESRION = '1.9.10'
+VESRION = '1.9.11'
 
 GAE_URL = ('https://storage.googleapis.com/appengine-sdks/{0}/'
            'google_appengine_{1}.zip')
@@ -15,7 +15,7 @@ GAE_URL_FEATURED = GAE_URL.format('featured', VESRION)
 GAE_URL_DEPRECATED = GAE_URL.format('deprecated/{0}'
                                     .format(VESRION.replace('.', '')), VESRION)
 
-GAE_CHECKSUM = 'cafb9b02a2b07389c5a88debd6caf2c8'
+GAE_CHECKSUM = '2764796c96e398e12b805a36f564586c'
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 BUILD_PATH = 'build'
 ZIP_PATH = os.path.join(tempfile.gettempdir(), 'google_appengine_{0}.zip'
