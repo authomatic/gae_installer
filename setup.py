@@ -22,7 +22,9 @@ ZIP_PATH = os.path.join(tempfile.gettempdir(), 'google_appengine.zip')
 BUILD_LIB_PATH = os.path.join(BUILD_PATH, 'lib')
 SCRIPTS_PATH = os.path.join(BUILD_PATH, 'scripts')
 README_PATH = os.path.join(BASE_PATH, 'README.rst')
-SCRIPT_TEMPLATE = 'python `get_gae_dir`/`basename $0`.py "$@"'
+GAE_DIR_SCRIPT_NAME = '_get_gae_dir'
+SCRIPT_TEMPLATE = 'python `{0}`/`basename $0`.py "$@"'\
+    .format(GAE_DIR_SCRIPT_NAME)
 
 
 class BuildScripts(build_scripts):
@@ -56,7 +58,14 @@ class Build(build):
         files = os.listdir(os.path.join(BUILD_LIB_PATH, 'google_appengine'))
 
         os.makedirs(SCRIPTS_PATH)
-        script_paths = []
+
+        # Create script for getting the path of the installed GAE SDK
+        gae_dir_script_path = os.path.join(SCRIPTS_PATH, GAE_DIR_SCRIPT_NAME)
+        with open(gae_dir_script_path, 'w') as f:
+            f.write('python -c "import google; print google.__file__'
+                    '.split(\'/google/\')[0]"')
+
+        script_paths = [gae_dir_script_path]
         for name in files:
             if name.endswith('.py') and name[0] != '_':
                 name = name[:-3]
