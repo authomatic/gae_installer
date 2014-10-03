@@ -51,7 +51,7 @@ or manually
     $(e) rm -rf gae_installer
 
 The installation will take a while. After it is complete, you should be able to
-import the ``google`` package:
+import the ``google.appengine`` module:
 
 .. code-block:: bash
 
