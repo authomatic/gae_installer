@@ -1,5 +1,5 @@
 ======================================
-Googe App Engine Installer 1.9.6.post1
+Googe App Engine Installer 1.9.6.post2
 ======================================
 
 This package installs the
