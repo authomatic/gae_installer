@@ -90,7 +90,6 @@ class Test(unittest.TestCase):
         os.system('python {0} install'
                   .format(os.path.join(BASE_PATH, 'setup.py')))
 
-
         # and activating the virtual environment
         self._activate_venv()
 
