@@ -18,7 +18,8 @@ GAE_URL_DEPRECATED = GAE_URL.format('deprecated/{0}'
 GAE_CHECKSUM = '888a6687d868ac37f973ea2fb986931338a1c040'
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 BUILD_PATH = 'build'
-ZIP_PATH = os.path.join(tempfile.gettempdir(), 'google_appengine.zip')
+ZIP_PATH = os.path.join(tempfile.gettempdir(), 'google_appengine_{0}.zip'
+                        .format(VESRION))
 BUILD_LIB_PATH = os.path.join(BUILD_PATH, 'lib')
 SCRIPTS_PATH = os.path.join(BUILD_PATH, 'scripts')
 README_PATH = os.path.join(BASE_PATH, 'README.rst')
