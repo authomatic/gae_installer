@@ -46,7 +46,7 @@ or manually
 
 .. code-block:: bash
 
-    $(e) git colone https://github.com/peterhudec/gae_installer.git
+    $(e) git clone https://github.com/peterhudec/gae_installer.git
     $(e) python gae_installer/setup.py install
     $(e) rm -rf gae_installer
 
