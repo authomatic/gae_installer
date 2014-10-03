@@ -27,6 +27,7 @@ GAE_DIR_SCRIPT_NAME = '_get_gae_dir'
 SCRIPT_TEMPLATE = 'python `{0}`/`basename $0`.py "$@"'\
     .format(GAE_DIR_SCRIPT_NAME)
 
+script_paths = []
 
 class BuildScripts(build_scripts):
     """Custom build_scripts command"""
