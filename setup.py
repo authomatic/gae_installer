@@ -1,87 +1,134 @@
 import os
-from distutils.command.build import build as _build
+from distutils.command.build import build
+from distutils.command.build_scripts import build_scripts
 from distutils.core import setup
 import hashlib
+import tempfile
 import urllib
 import zipfile
 
 VESRION = '1.9.6'
 
-GAE_URL = 'https://storage.googleapis.com/appengine-sdks/{0}/google_appengine_{1}.zip'
+GAE_URL = ('https://storage.googleapis.com/appengine-sdks/{0}/'
+           'google_appengine_{1}.zip')
 GAE_URL_FEATURED = GAE_URL.format('featured', VESRION)
-GAE_URL_DEPRECATED = GAE_URL.format('deprecated/{0}'.format(VESRION.replace('.', '')), VESRION)
+GAE_URL_DEPRECATED = GAE_URL.format('deprecated/{0}'
+                                    .format(VESRION.replace('.', '')), VESRION)
 
 GAE_CHECKSUM = '888a6687d868ac37f973ea2fb986931338a1c040'
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 BUILD_PATH = 'build'
-ZIP_PATH = os.path.join(BUILD_PATH, 'gae.zip')
-LIB_PATH = os.path.join(BUILD_PATH, 'lib')
-SCRIPTS_PATH = os.path.join(BASE_PATH, 'scripts')
+ZIP_PATH = os.path.join(tempfile.gettempdir(), 'google_appengine_{0}.zip'
+                        .format(VESRION))
+BUILD_LIB_PATH = os.path.join(BUILD_PATH, 'lib')
+SCRIPTS_PATH = os.path.join(BUILD_PATH, 'scripts')
 README_PATH = os.path.join(BASE_PATH, 'README.rst')
-SCRIPTS = [
-    'get_gae_dir',
-    'api_server',
-    'backends_conversion',
-    'bulkload_client',
-    'bulkloader',
-    'dev_appserver',
-    'download_appstats',
-    'endpointscfg',
-    'gen_protorpc',
-    'google_sql',
-    'old_dev_appserver',
-    'php_cli',
-    'remote_api_shell',
-    'wrapper_util',
-]
+GAE_DIR_SCRIPT_NAME = '_get_gae_dir'
+SCRIPT_TEMPLATE = 'python `{0}`/`basename $0`.py "$@"'\
+    .format(GAE_DIR_SCRIPT_NAME)
 
 
-def _download_gae(zip_path):
-    print('Downloading GAE SDK {0} from {1}'.format(VESRION, GAE_URL_FEATURED))
-    print('Please be patient, this can take a while...')
-    file_path, response = urllib.urlretrieve(GAE_URL_FEATURED, zip_path)
-    if response.type != 'application/zip':
-        print('GAE SDK {0} is deprecated!'.format(VESRION))
-        print('Downloading deprecated GAE SDK {0} from {1}'
-              .format(VESRION, GAE_URL_DEPRECATED))
-        file_path, response = urllib.urlretrieve(GAE_URL_DEPRECATED, zip_path)
-
-    print('Download OK')
-    return file_path
+class BuildScripts(build_scripts):
+    """Custom build_scripts command"""
+    def finalize_options(self):
+        global script_paths
+        build_scripts.finalize_options(self)
+        self.scripts = script_paths
 
 
-def checksum(zip_path):
-    cs = hashlib.sha1(open(zip_path, 'rb').read()).hexdigest()
-    if cs == GAE_CHECKSUM:
-        print('Checksum OK')
-        return True
+class Build(build):
+    """Custom build command"""
+    def initialize_options(self):
+        """Set the build path explicitly to be same on all platforms."""
+        build.initialize_options(self)
+        self.build_lib = BUILD_LIB_PATH
 
-
-class build(_build):
     def run(self):
-        os.makedirs(LIB_PATH)
-        self._download()
-        with open(os.path.join(LIB_PATH, 'google_appengine.pth'), 'w') as f:
-            f.write('google_appengine')
-        _build.run(self)
+        self._get_from_cache_or_download()
+        self._populate_files()
+        self._populate_scripts()
 
-    def _download(self):
+        build.run(self)
+
+    def _populate_scripts(self):
+        """
+        Generates script wrapper files for all GAE SDK scripts
+        and populates the global script_paths variable with their paths.
+        """
+        global script_paths
+        files = os.listdir(os.path.join(BUILD_LIB_PATH, 'google_appengine'))
+
+        os.makedirs(SCRIPTS_PATH)
+
+        # Create script for getting the path of the installed GAE SDK
+        gae_dir_script_path = os.path.join(SCRIPTS_PATH, GAE_DIR_SCRIPT_NAME)
+        with open(gae_dir_script_path, 'w') as f:
+            f.write('python -c "import google; print google.__file__'
+                    '.split(\'/google/\')[0]"')
+
+        script_paths = [gae_dir_script_path]
+        for name in files:
+            if name.endswith('.py') and name[0] != '_':
+                name = name[:-3]
+                script_path = os.path.join(SCRIPTS_PATH, name)
+                script_paths.append(script_path)
+                with open(script_path, 'w') as f:
+                    print 'Generating script file: {0}'.format(script_path)
+                    f.write(SCRIPT_TEMPLATE)
+
+    def _populate_files(self):
+        """Unzips the downloaded GAE SDK and creates a PTH file"""
+        os.makedirs(BUILD_LIB_PATH)
+        self._unzip(BUILD_LIB_PATH)
+        pth_path = os.path.join(BUILD_LIB_PATH, 'google_appengine.pth')
+        with open(pth_path, 'w') as f:
+            f.write('google_appengine')
+
+    def _get_from_cache_or_download(self):
+        """Gets the GAE SDK from cache or downloads it."""
         if os.path.isfile(ZIP_PATH):
             print('GAE SDK zip found at {0}'.format(ZIP_PATH))
-            if not checksum(ZIP_PATH):
-                print('GAE zip checksum {0} doesnt match with {1}!'
-                      .format(checksum, GAE_CHECKSUM))
-                _download_gae(ZIP_PATH)
+            if not self._checksum(ZIP_PATH):
+                print('GAE zip checksum doesnt match with {0}!'
+                      .format(GAE_CHECKSUM))
+                self._download_gae(ZIP_PATH)
         else:
-            _download_gae(ZIP_PATH)
-            if not checksum(ZIP_PATH):
+            self._download_gae(ZIP_PATH)
+            if not self._checksum(ZIP_PATH):
                 raise Exception("The downloaded GAE SDK {0} doesn't match the "
                                 "SHA1 checksum '{1}'"
                                 .format(VESRION, GAE_CHECKSUM))
 
+    def _unzip(self, build_path):
+        """Unzips the GAE SDK"""
         zf = zipfile.ZipFile(ZIP_PATH)
-        print('Extracting {0} to {1}'.format(ZIP_PATH, LIB_PATH))
-        zf.extractall(LIB_PATH)
+        print('Extracting {0} to {1}'.format(ZIP_PATH, build_path))
+        zf.extractall(build_path)
+
+    def _download_gae(self, zip_path):
+        """Downloads the GAE SDK"""
+        os.makedirs(BUILD_PATH)
+        print('Downloading GAE SDK {0} from {1} to {2}'
+              .format(VESRION, GAE_URL_FEATURED, zip_path))
+        print('Please be patient, this can take a while...')
+        file_path, response = urllib.urlretrieve(GAE_URL_FEATURED, zip_path)
+        if response.type != 'application/zip':
+            print('GAE SDK {0} is deprecated!'.format(VESRION))
+            print('Downloading deprecated GAE SDK {0} from {1}'
+                  .format(VESRION, GAE_URL_DEPRECATED))
+            file_path, response = urllib.urlretrieve(GAE_URL_DEPRECATED,
+                                                     zip_path)
+
+        print('Download OK')
+        return file_path
+
+    def _checksum(self, zip_path):
+        """Validates the GAE SDK against a checksum."""
+        cs = hashlib.sha1(open(zip_path, 'rb').read()).hexdigest()
+        if cs == GAE_CHECKSUM:
+            print('Checksum OK')
+            return True
+
 
 setup(
     name='gae_installer',
@@ -104,9 +151,10 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: System :: Installation/Setup',
     ],
-    license = 'MIT',
+    license='MIT',
     package_data={'': ['*.txt', '*.rst']},
-    packages=['gae_installer'], # If not empty, contents of ./build/lib will not be copied
-    scripts=[os.path.join(SCRIPTS_PATH, i) for i in SCRIPTS],
-    cmdclass=dict(build=build)
+    # If packages is empty, contents of ./build/lib will not be copied!
+    packages=['gae_installer'],
+    scripts=['if', 'empty', 'BuildScripts', 'will', 'be', 'ignored'],
+    cmdclass=dict(build=Build, build_scripts=BuildScripts)
 )
