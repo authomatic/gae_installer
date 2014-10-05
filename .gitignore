@@ -5,3 +5,4 @@ build/
 MANIFEST
 __pycache__/
 e/
+*.pyc
