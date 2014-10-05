@@ -95,10 +95,6 @@ class Build(build):
                 self._download_gae(ZIP_PATH)
         else:
             self._download_gae(ZIP_PATH)
-            if not self._checksum(ZIP_PATH):
-                raise Exception("The downloaded GAE SDK {0} doesn't match the "
-                                "SHA1 checksum '{1}'"
-                                .format(VESRION, GAE_CHECKSUM))
 
     def _unzip(self, build_path):
         """Unzips the GAE SDK"""
@@ -119,6 +115,10 @@ class Build(build):
                   .format(VESRION, GAE_URL_DEPRECATED))
             file_path, response = urllib.urlretrieve(GAE_URL_DEPRECATED,
                                                      zip_path)
+        if not self._checksum(ZIP_PATH):
+            raise Exception("The downloaded GAE SDK {0} doesn't match the "
+                            "SHA1 checksum '{1}'"
+                            .format(VESRION, GAE_CHECKSUM))
 
         print('Download OK')
         return file_path
