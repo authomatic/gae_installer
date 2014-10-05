@@ -129,8 +129,6 @@ class Test(unittest.TestCase):
 
         for command in original_commands:
             if command.endswith('.py') and command[0] != '_':
-                print 'TESTING {}'.format(command)
-
                 original_file = os.path.join(gae_dir, command)
                 name = command[:-3]
 
@@ -167,6 +165,10 @@ class Test(unittest.TestCase):
                 self.assertEquals(error, original_error,
                                   "Stderrs of {} and {} don't match!"
                                   .format(name, original_file))
+
+                ok = output == original_output and error == original_error
+                print 'TESTING SCRIPT: {} {}'\
+                    .format(name, 'OK' if ok else 'ERROR')
 
 
 if __name__ == '__main__':
