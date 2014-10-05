@@ -2,6 +2,7 @@ import unittest
 import os
 import sys
 import shutil
+import subprocess
 
 
 VENV_NAME = '_e'
@@ -95,7 +96,20 @@ class Test(unittest.TestCase):
         self._activate_venv()
 
         # GAE should not fail
-        self._import_gae()
+        import google.appengine
+
+        # The _get_gae_dir file should exist
+        get_gae_dir_path = os.path.join(VENV_PATH, 'bin', '_get_gae_dir')
+        self.assertTrue(os.path.isfile(get_gae_dir_path))
+
+        gae_dir = google.appengine.__file__.split('/google/')[0]
+        output, error = subprocess.Popen([get_gae_dir_path],
+                                         stderr=subprocess.PIPE,
+                                         stdout=subprocess.PIPE,
+                                         shell=True).communicate()
+
+        self.assertEquals(output.strip(), gae_dir)
+
 
 
 if __name__ == '__main__':
