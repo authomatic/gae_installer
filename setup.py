@@ -9,19 +9,19 @@ import zipfile
 
 import version
 
-VESRION = version.VESRION
 
+VERSION = version.VERSION
 GAE_URL = ('https://storage.googleapis.com/appengine-sdks/{0}/'
            'google_appengine_{1}.zip')
-GAE_URL_FEATURED = GAE_URL.format('featured', VESRION)
+GAE_URL_FEATURED = GAE_URL.format('featured', VERSION)
 GAE_URL_DEPRECATED = GAE_URL.format('deprecated/{0}'
-                                    .format(VESRION.replace('.', '')), VESRION)
+                                    .format(VERSION.replace('.', '')), VERSION)
 
 GAE_CHECKSUM = '667461ea79a5679339e883eb57a9f76efb1bbd0d'
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 BUILD_PATH = 'build'
 ZIP_PATH = os.path.join(tempfile.gettempdir(), 'google_appengine_{0}.zip'
-                        .format(VESRION))
+                        .format(VERSION))
 BUILD_LIB_PATH = os.path.join(BUILD_PATH, 'lib')
 SCRIPTS_PATH = os.path.join(BUILD_PATH, 'scripts')
 README_PATH = os.path.join(BASE_PATH, 'README.rst')
@@ -111,19 +111,19 @@ class Build(build):
         """Downloads the GAE SDK"""
         os.makedirs(BUILD_PATH)
         print('Downloading GAE SDK {0} from {1} to {2}'
-              .format(VESRION, GAE_URL_FEATURED, zip_path))
+              .format(VERSION, GAE_URL_FEATURED, zip_path))
         print('Please be patient, this can take a while...')
         file_path, response = urllib.urlretrieve(GAE_URL_FEATURED, zip_path)
         if response.type != 'application/zip':
-            print('GAE SDK {0} is deprecated!'.format(VESRION))
+            print('GAE SDK {0} is deprecated!'.format(VERSION))
             print('Downloading deprecated GAE SDK {0} from {1}'
-                  .format(VESRION, GAE_URL_DEPRECATED))
+                  .format(VERSION, GAE_URL_DEPRECATED))
             file_path, response = urllib.urlretrieve(GAE_URL_DEPRECATED,
                                                      zip_path)
         if not self._checksum(ZIP_PATH):
             raise Exception("The downloaded GAE SDK {0} doesn't match the "
                             "SHA1 checksum '{1}'"
-                            .format(VESRION, GAE_CHECKSUM))
+                            .format(VERSION, GAE_CHECKSUM))
 
         print('Download OK')
         return file_path
@@ -138,7 +138,7 @@ class Build(build):
 
 setup(
     name='gae_installer',
-    version=VESRION + '.post3',
+    version=version.FULL_VERSION,
     author='Peter Hudec',
     author_email='peterhudec@peterhudec.com',
     description='Google App Engine Installer',
