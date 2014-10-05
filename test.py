@@ -1,3 +1,8 @@
+"""
+Tests the setup.py script by running ``python setup.py install`` in a
+temporarily activated virtual environment.
+"""
+
 import re
 import unittest
 import os
@@ -76,6 +81,10 @@ class Test(unittest.TestCase):
         """
         execfile(ACTIVATE_THIS_PATH, dict(__file__=ACTIVATE_THIS_PATH))
 
+    def _install(self):
+        os.system('python {0} install'
+                  .format(os.path.join(BASE_PATH, 'setup.py')))
+
     def _import_gae(self):
         import google.appengine
 
@@ -89,8 +98,7 @@ class Test(unittest.TestCase):
         self.assertRaises(ImportError, self._import_gae)
 
         # After running setup.py,
-        os.system('python {0} install'
-                  .format(os.path.join(BASE_PATH, 'setup.py')))
+        self._install()
 
         # and activating the virtual environment
         self._activate_venv()

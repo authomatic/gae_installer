@@ -7,7 +7,9 @@ import tempfile
 import urllib
 import zipfile
 
-VESRION = '1.9.12'
+import version
+
+VESRION = version.VESRION
 
 GAE_URL = ('https://storage.googleapis.com/appengine-sdks/{0}/'
            'google_appengine_{1}.zip')
