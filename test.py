@@ -1,3 +1,4 @@
+import re
 import unittest
 import os
 import sys
@@ -91,7 +92,6 @@ class Test(unittest.TestCase):
         os.system('python {0} install'
                   .format(os.path.join(BASE_PATH, 'setup.py')))
 
-
         # and activating the virtual environment
         self._activate_venv()
 
@@ -102,14 +102,63 @@ class Test(unittest.TestCase):
         get_gae_dir_path = os.path.join(VENV_PATH, 'bin', '_get_gae_dir')
         self.assertTrue(os.path.isfile(get_gae_dir_path))
 
+        # The _get_gae_command should return the path of the
+        # installed google_appengine SDK
         gae_dir = google.appengine.__file__.split('/google/')[0]
-        output, error = subprocess.Popen([get_gae_dir_path],
+        output, error = subprocess.Popen(['_get_gae_dir'],
                                          stderr=subprocess.PIPE,
                                          stdout=subprocess.PIPE,
                                          shell=True).communicate()
 
         self.assertEquals(output.strip(), gae_dir)
 
+        # Skip the run_tests.py file
+        original_commands = os.listdir(gae_dir)
+        original_commands.remove('run_tests.py')
+
+        # Patter for replacing time in output
+        pattern = re.compile(r'\d\d:\d\d:\d\d,\d\d\d')
+
+        for command in original_commands:
+            if command.endswith('.py') and command[0] != '_':
+                print 'TESTING {}'.format(command)
+
+                original_file = os.path.join(gae_dir, command)
+                name = command[:-3]
+
+                self.assertTrue(os.path.isfile(original_file),
+                                "File {} doesn't exist!".format(original_file))
+
+                original_output, original_error = subprocess.Popen(
+                    ['python', original_file],
+                    stderr=subprocess.PIPE,
+                    stdout=subprocess.PIPE
+                ).communicate()
+
+                self.assertTrue(os.path.isfile(
+                    os.path.join(VENV_PATH, 'bin', name)),
+                    "File {} doesn't exist!".format(name)
+                )
+
+                output, error = subprocess.Popen(
+                    [name],
+                    stderr=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    shell=True
+                ).communicate()
+
+                # Output can contain varying time so we need to eliminate it
+                original_output = pattern.sub('', original_output)
+                original_error = pattern.sub('', original_error)
+                output = pattern.sub('', output)
+                error = pattern.sub('', error)
+
+                self.assertEquals(output, original_output,
+                                  "Stdouts of {} and {} don't match!"
+                                  .format(name, original_file))
+                self.assertEquals(error, original_error,
+                                  "Stderrs of {} and {} don't match!"
+                                  .format(name, original_file))
 
 
 if __name__ == '__main__':

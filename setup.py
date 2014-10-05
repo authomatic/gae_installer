@@ -59,6 +59,9 @@ class Build(build):
         global script_paths
         files = os.listdir(os.path.join(BUILD_LIB_PATH, 'google_appengine'))
 
+        # Exclude the run_tests.py file
+        files.remove('run_tests.py')
+
         os.makedirs(SCRIPTS_PATH)
 
         # Create script for getting the path of the installed GAE SDK
