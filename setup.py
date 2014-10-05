@@ -133,7 +133,7 @@ class Build(build):
 
 setup(
     name='gae_installer',
-    version=VESRION,
+    version=VESRION + '.post1',
     author='Peter Hudec',
     author_email='peterhudec@peterhudec.com',
     description='Google App Engine Installer',
