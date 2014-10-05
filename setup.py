@@ -15,7 +15,7 @@ GAE_URL_FEATURED = GAE_URL.format('featured', VESRION)
 GAE_URL_DEPRECATED = GAE_URL.format('deprecated/{0}'
                                     .format(VESRION.replace('.', '')), VESRION)
 
-GAE_CHECKSUM = '241f32dc62d3a577792d7fe9de3c5971'
+GAE_CHECKSUM = '667461ea79a5679339e883eb57a9f76efb1bbd0d'
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 BUILD_PATH = 'build'
 ZIP_PATH = os.path.join(tempfile.gettempdir(), 'google_appengine_{0}.zip'
