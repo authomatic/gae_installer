@@ -3,3 +3,5 @@ dist/
 build/
 .DS_Store
 MANIFEST
+__pycache__/
+e/
