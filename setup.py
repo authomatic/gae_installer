@@ -69,7 +69,7 @@ class Build(build):
         # Create script for getting the path of the installed GAE SDK
         gae_dir_script_path = os.path.join(SCRIPTS_PATH, GAE_DIR_SCRIPT_NAME)
         with open(gae_dir_script_path, 'w') as f:
-            f.write('python -c "import google; print google.__file__'
+            f.write('python -c "import google.appengine; print google.__file__'
                     '.split(\'/google/\')[0]"')
 
         script_paths = [gae_dir_script_path]
