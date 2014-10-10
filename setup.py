@@ -36,10 +36,10 @@ class BuildScripts(build_scripts):
 class Build(build):
     """Custom build command"""
 
-    def run(self):
-        self.zip_path = os.path.join(tempfile.gettempdir(),
-                                     'google_appengine_{0}.zip'.format(VERSION))
+    zip_path = os.path.join(tempfile.gettempdir(),
+                            'google_appengine_{0}.zip'.format(VERSION))
 
+    def run(self):
         # assert False, (self.build_base, self.build_temp)
         self._get_from_cache_or_download()
         self._populate_files()
