@@ -1,9 +1,13 @@
-===================================
-Googe App Engine Installer 1.9.12.1
-===================================
+.. |version| replace:: 1.9.12
+
+.. |fullversion| replace:: |version|.1
+
+========================================
+Googe App Engine Installer |fullversion|
+========================================
 
 This package installs the
-`Google App Engine SDK 1.9.12 <https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python>`_
+`Google App Engine SDK |version| <https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python>`_
 to the ``site-packages`` directory of the **current Python interpreter**
 so that you can use ``from google import appengine`` outside the
 ``dev_appserver.py`` runtime. This is useful if you want to use the
@@ -17,7 +21,7 @@ The installer works wit `Virtualenv <https://virtualenv.pypa.io/>`_.
 
 The **version** of this package mirrors the
 `GAE SDK <https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python>`_
-version (currently 1.9.12) and if there will be a new release of the SDK,
+version (currently |version|) and if there will be a new release of the SDK,
 there will be a corresponding release of this package too.
 
 Usage
