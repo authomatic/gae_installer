@@ -1,3 +1,2 @@
-FULL_VERSION = '1.9.11.post1'
-VERSION = FULL_VERSION if FULL_VERSION.count('.') == 2 else \
-    FULL_VERSION.rsplit('.', 1)[0]
+FULL_VERSION = '1.9.11.1'
+CHECKSUM = 'f16468418433eb762aca4a509dc5a28ad77448f1'

@@ -10,21 +10,15 @@ import zipfile
 import version
 
 
-VERSION = version.VERSION
+VERSION = version.FULL_VERSION if version.FULL_VERSION.count('.') == 2 else \
+    version.FULL_VERSION.rsplit('.', 1)[0]
+
 GAE_URL = ('https://storage.googleapis.com/appengine-sdks/{0}/'
            'google_appengine_{1}.zip')
 GAE_URL_FEATURED = GAE_URL.format('featured', VERSION)
 GAE_URL_DEPRECATED = GAE_URL.format('deprecated/{0}'
                                     .format(VERSION.replace('.', '')), VERSION)
 
-GAE_CHECKSUM = 'f16468418433eb762aca4a509dc5a28ad77448f1'
-BASE_PATH = os.path.abspath(os.path.dirname(__file__))
-BUILD_PATH = 'build'
-ZIP_PATH = os.path.join(tempfile.gettempdir(), 'google_appengine_{0}.zip'
-                        .format(VERSION))
-BUILD_LIB_PATH = os.path.join(BUILD_PATH, 'lib')
-SCRIPTS_PATH = os.path.join(BUILD_PATH, 'scripts')
-README_PATH = os.path.join(BASE_PATH, 'README.rst')
 GAE_DIR_SCRIPT_NAME = '_get_gae_dir'
 SCRIPT_TEMPLATE = 'python `{0}`/`basename $0`.py "$@"'\
     .format(GAE_DIR_SCRIPT_NAME)
@@ -41,12 +35,12 @@ class BuildScripts(build_scripts):
 
 class Build(build):
     """Custom build command"""
-    def initialize_options(self):
-        """Set the build path explicitly to be same on all platforms."""
-        build.initialize_options(self)
-        self.build_lib = BUILD_LIB_PATH
+
+    zip_path = os.path.join(tempfile.gettempdir(),
+                            'google_appengine_{0}.zip'.format(VERSION))
 
     def run(self):
+        # assert False, (self.build_base, self.build_temp)
         self._get_from_cache_or_download()
         self._populate_files()
         self._populate_scripts()
@@ -59,24 +53,26 @@ class Build(build):
         and populates the global script_paths variable with their paths.
         """
         global script_paths
-        files = os.listdir(os.path.join(BUILD_LIB_PATH, 'google_appengine'))
+        files = os.listdir(os.path.join(self.build_lib, 'google_appengine'))
 
         # Exclude the run_tests.py file
         files.remove('run_tests.py')
 
-        os.makedirs(SCRIPTS_PATH)
+        scripts_temp = os.path.join(self.build_temp, 'scripts')
+
+        os.makedirs(scripts_temp)
 
         # Create script for getting the path of the installed GAE SDK
-        gae_dir_script_path = os.path.join(SCRIPTS_PATH, GAE_DIR_SCRIPT_NAME)
+        gae_dir_script_path = os.path.join(scripts_temp, GAE_DIR_SCRIPT_NAME)
         with open(gae_dir_script_path, 'w') as f:
-            f.write('python -c "import google; print google.__file__'
+            f.write('python -c "import google.appengine; print google.__file__'
                     '.split(\'/google/\')[0]"')
 
         script_paths = [gae_dir_script_path]
         for name in files:
             if name.endswith('.py') and name[0] != '_':
                 name = name[:-3]
-                script_path = os.path.join(SCRIPTS_PATH, name)
+                script_path = os.path.join(scripts_temp, name)
                 script_paths.append(script_path)
                 with open(script_path, 'w') as f:
                     print 'Generating script file: {0}'.format(script_path)
@@ -84,46 +80,47 @@ class Build(build):
 
     def _populate_files(self):
         """Unzips the downloaded GAE SDK and creates a PTH file"""
-        os.makedirs(BUILD_LIB_PATH)
-        self._unzip(BUILD_LIB_PATH)
-        pth_path = os.path.join(BUILD_LIB_PATH, 'google_appengine.pth')
+        os.makedirs(self.build_lib)
+        self._unzip()
+        pth_path = os.path.join(self.build_lib, 'google_appengine.pth')
         with open(pth_path, 'w') as f:
             f.write('google_appengine')
 
     def _get_from_cache_or_download(self):
         """Gets the GAE SDK from cache or downloads it."""
-        if os.path.isfile(ZIP_PATH):
-            print('GAE SDK zip found at {0}'.format(ZIP_PATH))
-            if not self._checksum(ZIP_PATH):
+        if os.path.isfile(self.zip_path):
+            print('GAE SDK zip found at {0}'.format(self.zip_path))
+            if not self._checksum(self.zip_path):
                 print('GAE zip checksum doesnt match with {0}!'
-                      .format(GAE_CHECKSUM))
-                self._download_gae(ZIP_PATH)
+                      .format(version.CHECKSUM))
+                self._download_gae()
         else:
-            self._download_gae(ZIP_PATH)
+            self._download_gae()
 
-    def _unzip(self, build_path):
+    def _unzip(self):
         """Unzips the GAE SDK"""
-        zf = zipfile.ZipFile(ZIP_PATH)
-        print('Extracting {0} to {1}'.format(ZIP_PATH, build_path))
-        zf.extractall(build_path)
+        zf = zipfile.ZipFile(self.zip_path)
+        print('Extracting {0} to {1}'.format(self.zip_path, self.build_lib))
+        zf.extractall(self.build_lib)
 
-    def _download_gae(self, zip_path):
+    def _download_gae(self):
         """Downloads the GAE SDK"""
-        os.makedirs(BUILD_PATH)
+        os.makedirs(self.build_base)
         print('Downloading GAE SDK {0} from {1} to {2}'
-              .format(VERSION, GAE_URL_FEATURED, zip_path))
+              .format(VERSION, GAE_URL_FEATURED, self.zip_path))
         print('Please be patient, this can take a while...')
-        file_path, response = urllib.urlretrieve(GAE_URL_FEATURED, zip_path)
+        file_path, response = urllib.urlretrieve(GAE_URL_FEATURED,
+                                                 self.zip_path)
         if response.type != 'application/zip':
             print('GAE SDK {0} is deprecated!'.format(VERSION))
             print('Downloading deprecated GAE SDK {0} from {1}'
                   .format(VERSION, GAE_URL_DEPRECATED))
             file_path, response = urllib.urlretrieve(GAE_URL_DEPRECATED,
-                                                     zip_path)
-        if not self._checksum(ZIP_PATH):
+                                                     self.zip_path)
+        if not self._checksum(self.zip_path):
             raise Exception("The downloaded GAE SDK {0} doesn't match the "
                             "SHA1 checksum '{1}'"
-                            .format(VERSION, GAE_CHECKSUM))
+                            .format(VERSION, version.CHECKSUM))
 
         print('Download OK')
         return file_path
@@ -131,7 +128,7 @@ class Build(build):
     def _checksum(self, zip_path):
         """Validates the GAE SDK against a checksum."""
         cs = hashlib.sha1(open(zip_path, 'rb').read()).hexdigest()
-        if cs == GAE_CHECKSUM:
+        if cs == version.CHECKSUM:
             print('Checksum OK')
             return True
 
@@ -142,7 +139,8 @@ setup(
     author='Peter Hudec',
     author_email='peterhudec@peterhudec.com',
     description='Google App Engine Installer',
-    long_description=open(README_PATH).read(),
+    long_description=open(os.path.join(os.path.dirname(__file__), 'README.rst'))
+        .read(),
     keywords='google appengine gae sdk installer',
     url='https://github.com/peterhudec/gae_installer',
     classifiers=[
