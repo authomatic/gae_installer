@@ -7,9 +7,9 @@ Googe App Engine Installer |fullversion|
 ========================================
 
 This package installs the
-`Google App Engine SDK |version| <https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python>`_
-to the ``site-packages`` directory of the **current Python interpreter**
-so that you can use ``from google import appengine`` outside the
+`Google App Engine SDK <https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python>`_
+|version| to the ``site-packages`` directory of the **current Python
+interpreter** so that you can use ``from google import appengine`` outside the
 ``dev_appserver.py`` runtime. This is useful if you want to use the
 `google.appengine.ext.testbed <https://developers.google.com/appengine/docs/python/tools/localunittesting>`_
 package in your tests.
