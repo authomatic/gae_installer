@@ -106,6 +106,11 @@ class Test(unittest.TestCase):
         # GAE should not fail
         import google.appengine
 
+        # Patter for elimination of _e/lib/python2.7 and _e/local/lib/python2.7
+        # differences in scripts output
+        venv_lib_pattern = re.compile(r'(_e/).*(/python)')
+        venv_lib_replacement = r'\1...\2'
+
         # The _get_gae_dir file should exist
         get_gae_dir_path = os.path.join(VENV_PATH, 'bin', '_get_gae_dir')
         self.assertTrue(os.path.isfile(get_gae_dir_path))
@@ -118,14 +123,16 @@ class Test(unittest.TestCase):
                                          stdout=subprocess.PIPE,
                                          shell=True).communicate()
 
-        self.assertEquals(output.strip(), gae_dir)
+        output = venv_lib_pattern.sub(venv_lib_replacement, output.strip())
+        gae_dir_clean = venv_lib_pattern.sub(venv_lib_replacement, gae_dir)
+        self.assertEquals(output, gae_dir_clean)
 
         # Skip the run_tests.py file
         original_commands = os.listdir(gae_dir)
         original_commands.remove('run_tests.py')
 
         # Patter for replacing time in output
-        pattern = re.compile(r'\d\d:\d\d:\d\d,\d\d\d')
+        time_pattern = re.compile(r'\d\d:\d\d:\d\d,\d\d\d')
 
         for command in original_commands:
             if command.endswith('.py') and command[0] != '_':
@@ -154,10 +161,22 @@ class Test(unittest.TestCase):
                 ).communicate()
 
                 # Output can contain varying time so we need to eliminate it
-                original_output = pattern.sub('', original_output)
-                original_error = pattern.sub('', original_error)
-                output = pattern.sub('', output)
-                error = pattern.sub('', error)
+                original_output = time_pattern.sub('', original_output)
+                original_error = time_pattern.sub('', original_error)
+                output = time_pattern.sub('', output)
+                error = time_pattern.sub('', error)
+
+                # Eliminate of _e/lib/python2.7 and _e/local/lib/python2.7
+                # differences
+                original_output = venv_lib_pattern.sub(venv_lib_replacement,
+                                                       original_output)
+                original_error = venv_lib_pattern.sub(venv_lib_replacement,
+                                                      original_error)
+                output = venv_lib_pattern.sub(venv_lib_replacement, output)
+                error = venv_lib_pattern.sub(venv_lib_replacement, error)
+
+                assert output == original_output
+                assert error == original_error
 
                 self.assertEquals(output, original_output,
                                   "Stdouts of {} and {} don't match!"

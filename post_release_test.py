@@ -13,7 +13,7 @@ import test
 
 class TestPostRelease(test.Test):
     def _install(self):
-        os.system('pip install gae_installer=={}'.format(version.FULL_VERSION))
+        os.system('pip install gae_installer=={}'.format(version.full_version))
 
 
 if __name__ == '__main__':
