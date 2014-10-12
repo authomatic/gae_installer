@@ -95,7 +95,7 @@ class Build(build):
                       .format(version.CHECKSUM))
                 self._download_gae()
         else:
-            self._download_gae(self.zip_path)
+            self._download_gae()
 
     def _unzip(self):
         """Unzips the GAE SDK"""
