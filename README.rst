@@ -1,11 +1,15 @@
-===================================
-Googe App Engine Installer 1.9.11.1
-===================================
+.. |version| replace:: 1.9.11
+.. |fullversion| replace:: |version|.2
+.. |checksum| replace:: ``f16468418433eb762aca4a509dc5a28ad77448f1``
+
+========================================
+Googe App Engine Installer |fullversion|
+========================================
 
 This package installs the
-`Google App Engine SDK 1.9.11 <https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python>`_
-to the ``site-packages`` directory of the **current Python interpreter**
-so that you can use ``from google import appengine`` outside the
+`Google App Engine SDK <https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python>`_
+|version| to the ``site-packages`` directory of the **current Python
+interpreter** so that you can use ``from google import appengine`` outside the
 ``dev_appserver.py`` runtime. This is useful if you want to use the
 `google.appengine.ext.testbed <https://developers.google.com/appengine/docs/python/tools/localunittesting>`_
 package in your tests.
@@ -17,7 +21,7 @@ The installer works wit `Virtualenv <https://virtualenv.pypa.io/>`_.
 
 The **version** of this package mirrors the
 `GAE SDK <https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python>`_
-version (currently 1.9.11) and if there will be a new release of the SDK,
+version (currently |version|) and if there will be a new release of the SDK,
 there will be a corresponding release of this package too.
 
 Usage
@@ -103,8 +107,8 @@ URL. If the response mime-type is not ``application/zip``, the requested version
 is deprecated and the installer will download the GAE SDK from
 https://storage.googleapis.com/appengine-sdks/deprecated/XXX/google_appengine_X.X.X.zip
 where XXX is the **GAE SDK** version matching the **GAE Installer** version.
-The downloaded ZIP archive will then be checked against a SHA1 checksum and
-extracted into the ``site-packages/google_appengine`` directory of the
+The downloaded ZIP archive will then be checked against the SHA1 checksum
+|checksum| and extracted into the ``site-packages/google_appengine`` directory of the
 **current Python interpreter** and made available to the PYTHONPATH with the
 ``site-packages/google_appengine.pth`` file. **GAE Installer** also creates Bash
 executables in the *scripts directory* of the current Python interpreter

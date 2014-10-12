@@ -1,2 +1,9 @@
-FULL_VERSION = '1.9.11.1'
-CHECKSUM = 'f16468418433eb762aca4a509dc5a28ad77448f1'
+import re
+
+with open('README.rst') as readme:
+    content = readme.read()
+    checksum = re.search(r'\|checksum\| replace:: ``(.*)``', content).group(1)
+    version = re.search(r'\|version\| replace:: (.*)', content).group(1)
+    version_suffix = re.search(r'\|fullversion\| replace:: \|version\|(.*)',
+                               content).group(1)
+    full_version = version + version_suffix
