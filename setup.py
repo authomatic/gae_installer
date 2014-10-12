@@ -10,8 +10,8 @@ import zipfile
 import version
 
 
-VERSION = version.FULL_VERSION if version.FULL_VERSION.count('.') == 2 else \
-    version.FULL_VERSION.rsplit('.', 1)[0]
+VERSION = version.full_version if version.full_version.count('.') == 2 else \
+    version.full_version.rsplit('.', 1)[0]
 
 GAE_URL = ('https://storage.googleapis.com/appengine-sdks/{0}/'
            'google_appengine_{1}.zip')
@@ -92,7 +92,7 @@ class Build(build):
             print('GAE SDK zip found at {0}'.format(self.zip_path))
             if not self._checksum(self.zip_path):
                 print('GAE zip checksum doesnt match with {0}!'
-                      .format(version.CHECKSUM))
+                      .format(version.checksum))
                 self._download_gae()
         else:
             self._download_gae()
@@ -120,7 +120,7 @@ class Build(build):
         if not self._checksum(self.zip_path):
             raise Exception("The downloaded GAE SDK {0} doesn't match the "
                             "SHA1 checksum '{1}'"
-                            .format(VERSION, version.CHECKSUM))
+                            .format(VERSION, version.checksum))
 
         print('Download OK')
         return file_path
@@ -128,14 +128,14 @@ class Build(build):
     def _checksum(self, zip_path):
         """Validates the GAE SDK against a checksum."""
         cs = hashlib.sha1(open(zip_path, 'rb').read()).hexdigest()
-        if cs == version.CHECKSUM:
+        if cs == version.checksum:
             print('Checksum OK')
             return True
 
 
 setup(
     name='gae_installer',
-    version=version.FULL_VERSION,
+    version=version.full_version,
     author='Peter Hudec',
     author_email='peterhudec@peterhudec.com',
     description='Google App Engine Installer',

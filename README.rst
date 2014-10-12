@@ -1,6 +1,5 @@
 .. |version| replace:: 1.9.12
-.. |versionsuffix| replace:: 12
-.. |fullversion| replace:: |version|.|versionsuffix|
+.. |fullversion| replace:: |version|.2
 .. |checksum| replace:: ``667461ea79a5679339e883eb57a9f76efb1bbd0d``
 
 ========================================
