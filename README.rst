@@ -1,5 +1,5 @@
 .. |version| replace:: 1.9.14
-.. |fullversion| replace:: |version|.2
+.. |fullversion| replace:: |version|.3
 .. |checksum| replace:: ``5d58fc7414c17920281a661e66be5877bc30c379``
 
 ========================================
