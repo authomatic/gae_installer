@@ -19,6 +19,7 @@ GAE_URL_FEATURED = GAE_URL.format('featured', VERSION)
 GAE_URL_DEPRECATED = GAE_URL.format('deprecated/{0}'
                                     .format(VERSION.replace('.', '')), VERSION)
 
+SHEBANG_TEMPLATE = '#!/usr/bin/env bash\n'
 GAE_DIR_SCRIPT_NAME = '_get_gae_dir'
 SCRIPT_TEMPLATE = 'python `{0}`/`basename $0`.py "$@"'\
     .format(GAE_DIR_SCRIPT_NAME)
@@ -65,7 +66,7 @@ class Build(build):
         # Create script for getting the path of the installed GAE SDK
         gae_dir_script_path = os.path.join(scripts_temp, GAE_DIR_SCRIPT_NAME)
         with open(gae_dir_script_path, 'w') as f:
-            f.write('python -c "import google.appengine; print google.__file__'
+            f.write(SHEBANG_TEMPLATE + 'python -c "import google.appengine; print google.__file__'
                     '.split(\'/google/\')[0]"')
 
         script_paths = [gae_dir_script_path]
@@ -76,7 +77,7 @@ class Build(build):
                 script_paths.append(script_path)
                 with open(script_path, 'w') as f:
                     print 'Generating script file: {0}'.format(script_path)
-                    f.write(SCRIPT_TEMPLATE)
+                    f.write(SHEBANG_TEMPLATE + SCRIPT_TEMPLATE)
 
     def _populate_files(self):
         """Unzips the downloaded GAE SDK and creates a PTH file"""
