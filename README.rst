@@ -1,6 +1,6 @@
 .. |version| replace:: 1.9.17
-.. |fullversion| replace:: |version|.3
-.. |checksum| replace:: ``eec50aaf922d3b21623fda1b90e199c3ffa9e16e``
+.. |fullversion| replace:: |version|.4
+.. |checksum| replace:: ``5c7a5ec05f66badeeebe69810888ef5a``
 
 ========================================
 Googe App Engine Installer |fullversion|
@@ -107,7 +107,7 @@ URL. If the response mime-type is not ``application/zip``, the requested version
 is deprecated and the installer will download the GAE SDK from
 https://storage.googleapis.com/appengine-sdks/deprecated/XXX/google_appengine_X.X.X.zip
 where XXX is the **GAE SDK** version matching the **GAE Installer** version.
-The downloaded ZIP archive will then be checked against the SHA1 checksum
+The downloaded ZIP archive will then be checked against the MD5 checksum
 |checksum| and extracted into the ``site-packages/google_appengine`` directory of the
 **current Python interpreter** and made available to the PYTHONPATH with the
 ``site-packages/google_appengine.pth`` file. **GAE Installer** also creates Bash

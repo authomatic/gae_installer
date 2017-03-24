@@ -1,8 +1,8 @@
-import os
 from distutils.command.build import build
 from distutils.command.build_scripts import build_scripts
 from distutils.core import setup
-import hashlib
+from md5 import md5
+import os
 import tempfile
 import urllib
 import zipfile
@@ -128,7 +128,7 @@ class Build(build):
 
     def _checksum(self, zip_path):
         """Validates the GAE SDK against a checksum."""
-        cs = hashlib.sha1(open(zip_path, 'rb').read()).hexdigest()
+        cs = md5(open(zip_path, 'rb').read()).hexdigest()
         if cs == version.checksum:
             print('Checksum OK')
             return True
