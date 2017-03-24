@@ -89,24 +89,27 @@ class Test(unittest.TestCase):
         import google.appengine
 
     def test_import(self):
-        # On Ubuntu, there is a google module in system site-packages
-        # which shadows the google module from google_appengine.
-        # Therefore we will keep only the virtualenv paths in the pythonpath.
-        sys.path = sys.path[:3]
 
         # GAE import should fail first
         self.assertRaises(ImportError, self._import_gae)
 
-        # After running setup.py,
+        # When we install it...
         self._install()
 
-        # and activating the virtual environment
+        # (we need to activate venv again, otherwise it won't work)
         self._activate_venv()
 
-        # GAE should not fail
+        # (remove shadowing google modules if any)
+        if 'google' in sys.modules:
+            del sys.modules['google']
+
+        # Now the import should not fail
         import google.appengine
 
-        # Patter for elimination of _e/lib/python2.7 and _e/local/lib/python2.7
+        # Ensure that the imported module lives in our venv
+        assert VENV_PATH in google.appengine.__path__[0]
+
+        # Pattern for elimination of _e/lib/python2.7 and _e/local/lib/python2.7
         # differences in scripts output
         venv_lib_pattern = re.compile(r'(_e/).*(/python)')
         venv_lib_replacement = r'\1...\2'
@@ -192,6 +195,6 @@ class Test(unittest.TestCase):
 
 if __name__ == '__main__':
     if sys.version_info.major == 2 and sys.version_info.minor >= 7:
-        unittest.main()
+        unittest.main(failfast=True)
     else:
         sys.exit('GAE Installer requires Python 2.7 or higher!')
