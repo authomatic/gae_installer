@@ -1,6 +1,6 @@
-.. |version| replace:: 1.9.51
+.. |version| replace:: 1.9.52
 .. |fullversion| replace:: |version|.4
-.. |checksum| replace:: ``6d66853faa2e75c1d25b27a2f9bbbba3``
+.. |checksum| replace:: ``1195bf4d5436281c2b472fb8898954be``
 
 ========================================
 Googe App Engine Installer |fullversion|
