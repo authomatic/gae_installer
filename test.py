@@ -3,12 +3,15 @@ Tests the setup.py script by running ``python setup.py install`` in a
 temporarily activated virtual environment.
 """
 
-import re
-import unittest
 import os
-import sys
+import re
 import shutil
 import subprocess
+import sys
+import unittest
+import urllib2
+
+import version
 
 
 VENV_NAME = '_e'
@@ -191,6 +194,42 @@ class Test(unittest.TestCase):
                 ok = output == original_output and error == original_error
                 print 'TESTING SCRIPT: {} {}'\
                     .format(name, 'OK' if ok else 'ERROR')
+
+
+class TestNewVersion(unittest.TestCase):
+    def test_new_version(self):
+        """
+        Tests whether the current version is the most recent one.
+        """
+        prefix = 'google_appengine_'
+
+        major, minor, micro = map(int, version.version.split('.'))
+        bucket_list = urllib2.urlopen('https://storage.googleapis.com/'
+                                      'appengine-sdks/').read()
+
+        match = re.search(
+            pattern=r'{}({}\.\d+.\d+)'.format(prefix, major + 1),
+            string=bucket_list
+        )
+
+        if not match:
+            match = re.search(
+                pattern=r'{}({}\.{}.\d+)'.format(prefix, major, minor + 1),
+                string=bucket_list
+            )
+
+        if not match:
+            match = re.search(
+                pattern=r'{}({}\.{}.{})'
+                    .format(prefix, major, minor, micro + 1),
+                string=bucket_list
+            )
+
+        self.assertIsNone(
+            obj=match,
+            msg='New GAE version {} available!'.format(match.groups()[0])
+                if match else ''
+        )
 
 
 if __name__ == '__main__':
