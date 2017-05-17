@@ -120,7 +120,7 @@ class Build(build):
                                                      self.zip_path)
         if not self._checksum(self.zip_path):
             raise Exception("The downloaded GAE SDK {0} doesn't match the "
-                            "SHA1 checksum '{1}'"
+                            "MD5 checksum '{1}'"
                             .format(VERSION, version.checksum))
 
         print('Download OK')
