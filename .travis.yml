@@ -1,4 +1,3 @@
-sudo: required
 language: python
 script:
   - python test.py -v
