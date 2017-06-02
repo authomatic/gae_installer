@@ -6,6 +6,9 @@
 Googe App Engine Installer |fullversion|
 ========================================
 
+.. image:: https://travis-ci.org/peterhudec/gae_installer.svg?branch=master
+    :target: https://travis-ci.org/peterhudec/gae_installer
+
 This package installs the
 `Google App Engine SDK <https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python>`_
 |version| to the ``site-packages`` directory of the **current Python
