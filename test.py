@@ -46,7 +46,7 @@ class Test(unittest.TestCase):
     def setUpClass(cls):
         cls.tearDownClass()
         if _which('virtualenv'):
-            os.system('virtualenv {0} -p python2.7'.format(VENV_PATH))
+            os.system('virtualenv {0} -q -p python2.7'.format(VENV_PATH))
             if not os.path.isdir(VENV_PATH):
                 sys.exit('Failed to create virtual environment "{0}"!'
                          .format(VENV_PATH))
@@ -85,7 +85,7 @@ class Test(unittest.TestCase):
         execfile(ACTIVATE_THIS_PATH, dict(__file__=ACTIVATE_THIS_PATH))
 
     def _install(self):
-        os.system('python {0} install'
+        os.system('python {0} -q install'
                   .format(os.path.join(BASE_PATH, 'setup.py')))
 
     def _import_gae(self):
